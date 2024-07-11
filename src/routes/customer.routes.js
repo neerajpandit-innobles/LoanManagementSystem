@@ -30,7 +30,7 @@ router.route("/customerProfiles").get(getAllCustomersWithLoanDetails)
 
 router.route("/:customerId/document").post(createCustomerDocuments)
 
-router.route("/:customerId").get(getCustomerDetails)
+router.route("/:customerIDOrcustomerId").get(getCustomerDetails)
 
 
 router.route("/register1").post(upload.fields([

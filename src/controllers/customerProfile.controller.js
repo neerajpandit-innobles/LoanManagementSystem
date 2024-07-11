@@ -135,16 +135,26 @@ export const getAllCustomersWithLoanDetails = asyncHandler(async (req, res) => {
 
 
 export const getCustomerDetails = asyncHandler(async (req, res) => {
-    const { customerId } = req.params;
+    // const { customerID } = req.params;
+    const { customerIDOrcustomerId } = req.params;
+    console.log(`Received parameter: ${customerIDOrcustomerId}`);
+    const customer = await Customer.findOne({
+      $or:[{customerID: customerIDOrcustomerId},{_id:customerIDOrcustomerId}]
+  });
 
+  if (!customer) {
+      throw new ApiError(404, "Customer not found");
+  }
+  console.log(customer._id)
+    // const customerId= await Customer.findOne({customerID})
     // Validate customer ID
-    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+    if (!mongoose.Types.ObjectId.isValid(customer._id)) {
         throw new ApiError(400, "Invalid customer ID");
     }
 
     // Fetch customer details using aggregation pipeline
     const customerDetails = await Customer.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(customerId) } },
+        { $match: { _id: new mongoose.Types.ObjectId(customer._id) } },
         {
             $lookup: {
                 from: "customernominees",
