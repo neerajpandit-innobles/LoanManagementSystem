@@ -138,9 +138,20 @@ export const getCustomerDetails = asyncHandler(async (req, res) => {
     // const { customerID } = req.params;
     const { customerIDOrcustomerId } = req.params;
     console.log(`Received parameter: ${customerIDOrcustomerId}`);
-    const customer = await Customer.findOne({
-      $or:[{customerID: customerIDOrcustomerId},{_id:customerIDOrcustomerId}]
-  });
+  //   const customer = await Customer.findOne({
+  //     $or:[{customerID: customerIDOrcustomerId},{_id:customerIDOrcustomerId}]
+  // });
+
+  let customer;
+
+  // Check if the param is a valid ObjectId
+  if (mongoose.Types.ObjectId.isValid(customerIDOrcustomerId)) {
+      // Find customer by _id
+      customer = await Customer.findOne({ _id: customerIDOrcustomerId });
+  } else {
+      // Find customer by customerID
+      customer = await Customer.findOne({ customerID: customerIDOrcustomerId });
+  }
 
   if (!customer) {
       throw new ApiError(404, "Customer not found");
