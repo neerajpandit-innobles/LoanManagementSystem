@@ -251,14 +251,16 @@ export const updateEMIStatus = async (req, res) => {
         if (!emiDetail) {
             return res.status(404).json({ message: 'EMI detail not found' });
         }
+        emiDetail.status = 'Paid';
+        emiDetail.submissionDate = submissionDate || new Date();
 
         // Update the status and submission date if the status is 'Paid'
-        if (status === 'Paid') {
-            emiDetail.status = 'Paid';
-            emiDetail.submissionDate = submissionDate || new Date();
-        } else {
-            return res.status(400).json({ message: 'Invalid status update' });
-        }
+        // if (status === 'Paid') {
+        //     emiDetail.status = 'Paid';
+        //     emiDetail.submissionDate = submissionDate || new Date();
+        // } else {
+        //     return res.status(400).json({ message: 'Invalid status update' });
+        // }
 
         // Save the updated EMI detail
         await emiDetail.save();
