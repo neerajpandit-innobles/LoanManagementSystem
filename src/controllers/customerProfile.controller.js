@@ -41,6 +41,7 @@ export const getAllCustomersWithLoanDetails1 = asyncHandler(async (req, res) => 
       gender: customer.gender,
       dob: customer.dob,
       fathersName: customer.fatherName,
+      avatar:customer.avatar,
       registrationDate: customer.createdAt, // Assuming registration date is createdAt
       loanStatistics: {
         totalLoans,
@@ -108,6 +109,7 @@ export const getAllCustomersWithLoanDetails = asyncHandler(async (req, res) => {
         dob: customer.dob,
         fathersName: customer.fatherName,
         registrationDate: customer.createdAt, // Assuming registration date is createdAt
+        avatar:customer.avatar,
         loanStatistics: {
           totalLoans,
           activeLoans,
@@ -218,6 +220,7 @@ export const getCustomerDetails = asyncHandler(async (req, res) => {
                 spouseName: 1,
                 phoneNo: 1,
                 email: 1,
+                avatar:1,
                 currentAddress: 1,
                 permanentAddress: 1,
                 nominee: "$nomineeDetails",

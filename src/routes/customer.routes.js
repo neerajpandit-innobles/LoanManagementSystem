@@ -3,7 +3,7 @@ import { Router } from "express";
 const router=Router();
 
 import {verifyJWT} from "../middlewares/auth.middleware.js"
-import { createCustomer, createCustomerWitness, createCustomerNominee, getCustomers, registerCustomer, registerCustomer1, registerCustomer2 } from "../controllers/customer.controller.js";
+import {  createCustomerWitness, createCustomerNominee, getCustomers, registerCustomer, updateAvatar } from "../controllers/customer.controller.js";
 import { createEmploymentStatus } from "../controllers/employMentStatus.controller.js";
 import { createBankDetails } from "../controllers/bankDetails.controller.js";
 import { getAllCustomersWithLoanDetails, getCustomerDetails } from "../controllers/customerProfile.controller.js";
@@ -12,10 +12,8 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 router.route("/register").post(registerCustomer)
 
-//avatar with
-router.route("/registerfile").post( upload.single('avatar'), registerCustomer2);
+router.route('/update-avatar/:customerId').post(upload.single('avatar'),updateAvatar)
 
-router.route("/createCustomer").post(createCustomer);
 router.route("/getCustomer").get(getCustomers)
 router.route("/addNominee").post(createCustomerNominee);
 router.route("/createCustomerWitness").post(createCustomerWitness)
@@ -32,14 +30,5 @@ router.route("/:customerId/document").post(createCustomerDocuments)
 
 router.route("/:customerIDOrcustomerId").get(getCustomerDetails)
 
-
-router.route("/register1").post(upload.fields([
-    { name: 'AadharCard', maxCount: 1 },
-    { name: 'PANCard', maxCount: 1 },
-    { name: 'VoterID', maxCount: 1 },
-    { name: 'DrivingLicense', maxCount: 1 },
-    { name: 'Passport', maxCount: 1 },
-    { name: 'ITRNo', maxCount: 1 }
-]), registerCustomer1);
 
 export default router;

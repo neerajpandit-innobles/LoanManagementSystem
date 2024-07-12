@@ -6,12 +6,12 @@ import { issueLoan } from "../controllers/customerLoan.controller.js";
 
 
 router.route("/:loanId").get(getLoanDetails)
-router.route("/emiUpdate").put(updateEMIStatus)
+router.route("/emiUpdate/:id").put(updateEMIStatus)
 
 //calculateEMI', 
 router.route("/calculateEMI/:customerID").post(calculateEMI)
 //issueLoan
-router.route("/issueLoan/:customerID").post(issueLoan)
+router.route("/issueLoan/:customerIDOrcustomerId").post(issueLoan)
 
 
 export default router;

@@ -241,11 +241,12 @@ export const updateLoanStatus = asyncHandler(async (req, res) => {
 
 // Controller function to update EMI status
 export const updateEMIStatus = async (req, res) => {
+    const id=req.params.id
     try {
-        const { emiId, status, submissionDate } = req.body;
+        const { status, submissionDate } = req.body;
 
         // Find the EMI detail by ID
-        const emiDetail = await EMIDetail.findById(emiId);
+        const emiDetail = await EMIDetail.findById(id);
 
         if (!emiDetail) {
             return res.status(404).json({ message: 'EMI detail not found' });
