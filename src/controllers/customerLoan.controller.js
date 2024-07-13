@@ -25,10 +25,10 @@ export const calculateEMI = asyncHandler(async (req, res) => {
     }
 
     // Calculate loan amount after interest
-    const loanAmountAfterInterest = loanAmount + (loanAmount * interest / 100);
+    const loanAmountAfterInterest = (loanAmount + ((loanAmount * interest * tenure) / 1200)).toFixed(2); 
 
     // Calculate monthly EMI
-    const monthlyEMI = loanAmountAfterInterest / tenure;
+    const monthlyEMI = (loanAmountAfterInterest / tenure).toFixed(2); 
 
     // Calculate loan issue date (assuming current date)
     const loanIssueDate = new Date();
@@ -90,11 +90,11 @@ export const issueLoan = asyncHandler(async (req, res) => {
             throw new ApiError(404, "Customer not found");
         }
 //console.log(customer)
-        // Calculate loan amount after interest
-        const loanAmountAfterInterest = loanAmount + (loanAmount * interest / 100);
+     // Calculate loan amount after interest
+     const loanAmountAfterInterest = (loanAmount + ((loanAmount * interest * tenure) / 1200)).toFixed(2); 
 
-        // Calculate monthly EMI
-        const monthlyEMI = loanAmountAfterInterest / tenure;
+     // Calculate monthly EMI
+     const monthlyEMI = (loanAmountAfterInterest / tenure).toFixed(2);
 
         // Create loan
         const loan = new CustomerLoan({
