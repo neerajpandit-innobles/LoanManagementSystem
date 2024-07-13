@@ -13,7 +13,8 @@ app.use(cors({
 }));
 
 
-
+app.use(morganMiddleware);
+app.use(logRequestResponse);
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
@@ -31,6 +32,7 @@ app.use(
 import userRouter from "./routes/user.routes.js";
 import customerRouter from "./routes/customer.routes.js";
 import loanRouter from "./routes/loan.routes.js"
+import { logRequestResponse, morganMiddleware } from "./middlewares/logger.middleware.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/customer", customerRouter);

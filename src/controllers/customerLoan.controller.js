@@ -11,7 +11,7 @@ import mongoose from "mongoose";
 //calculateEMI
 export const calculateEMI = asyncHandler(async (req, res) => {
     const { loanType, loanAmount, interest, tenure, firstEMIDate, latePaymentPenalty, collateral } = req.body;
-
+// console.log(req.body)
     // Generate a unique loan ID (similar to the pre-validate hook in the CustomerLoan schema)
     let isUnique = false;
     let loanID;
@@ -24,12 +24,16 @@ export const calculateEMI = asyncHandler(async (req, res) => {
         }
     }
 
-    // Calculate loan amount after interest
-    const loanAmountAfterInterest = (loanAmount + ((loanAmount * interest * tenure) / 1200)).toFixed(2); 
+    // Calculate interest by monthly
+    const intrest =(loanAmount * interest * tenure) / 1200;
+    console.log("Intrest: ",parseFloat(intrest))
+    console.log("loan Amount: ",loanAmount)
 
+    const loanAmountAfterInterest = (parseFloat(loanAmount) + parseFloat(intrest));
+    console.log("Amount +Intrest:",loanAmountAfterInterest)
     // Calculate monthly EMI
-    const monthlyEMI = (loanAmountAfterInterest / tenure).toFixed(2); 
-
+    let monthlyEMI = (loanAmountAfterInterest / tenure); 
+    // console.log(monthlyEMI)
     // Calculate loan issue date (assuming current date)
     const loanIssueDate = new Date();
 
@@ -50,7 +54,7 @@ export const calculateEMI = asyncHandler(async (req, res) => {
         // Move to next month
         emiDate.setMonth(emiDate.getMonth() + 1);
     }
-
+//  console.log(loanAmountAfterInterest)
     res.status(200).json(new ApiResponse(200, {
         loanID,
         loanType,
@@ -89,13 +93,15 @@ export const issueLoan = asyncHandler(async (req, res) => {
         if (!customer) {
             throw new ApiError(404, "Customer not found");
         }
-//console.log(customer)
-     // Calculate loan amount after interest
-     const loanAmountAfterInterest = (loanAmount + ((loanAmount * interest * tenure) / 1200)).toFixed(2); 
+    // Calculate interest by monthly
+    const intrest =(loanAmount * interest * tenure) / 1200;
+    console.log("Intrest: ",parseFloat(intrest))
+    console.log("loan Amount: ",loanAmount)
 
-     // Calculate monthly EMI
-     const monthlyEMI = (loanAmountAfterInterest / tenure).toFixed(2);
-
+    const loanAmountAfterInterest = (parseFloat(loanAmount) + parseFloat(intrest));
+    console.log("Amount +Intrest:",loanAmountAfterInterest)
+    // Calculate monthly EMI
+    let monthlyEMI = (loanAmountAfterInterest / tenure); 
         // Create loan
         const loan = new CustomerLoan({
             loanType,
