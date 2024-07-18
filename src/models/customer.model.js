@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
-import { CustomerWitness } from "./customerWitness.model.js";
+// import { CustomerWitness } from "./customerWitness.model.js";
 import { EmploymentStatusSchema } from "./employmentStatus.model.js";
 const addressSchema = new Schema({
     street: {

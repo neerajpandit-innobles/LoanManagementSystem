@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 
 
 //without pagination
-export const getAllCustomersWithLoanDetails = asyncHandler(async (req, res) => {
+export const getAllCustomersWithLoanDetails2 = asyncHandler(async (req, res) => {
   try {
     // Fetch all customers
     const customers = await Customer.find({});
@@ -86,7 +86,7 @@ export const getAllCustomersWithLoanDetails = asyncHandler(async (req, res) => {
 });
 
 //pagination with
-export const getAllCustomersWithLoanDetails2 = asyncHandler(async (req, res) => {
+export const getAllCustomersWithLoanDetails = asyncHandler(async (req, res) => {
   try {
     // Pagination start
     const pageNo = parseInt(req.query.pageNo) || 1;

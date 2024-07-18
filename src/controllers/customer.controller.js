@@ -9,7 +9,9 @@ import { CustomerDocuments } from "../models/customerDocument.model.js";
 import { BankDetails } from "../models/bankDetails.model.js";
 
 
+// its work with image and allfile
 export const registerCustomer = asyncHandler(async (req, res) => {
+    console.log('Request Body:', req.body);
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -23,6 +25,120 @@ export const registerCustomer = asyncHandler(async (req, res) => {
             bankDetailsData
         } = req.body;
 
+        // Parse JSON strings to objects
+        const parsedCustomerData = JSON.parse(customerData);
+        const parsedNomineeData = JSON.parse(nomineeData);
+        const parsedWitnessData = JSON.parse(witnessData);
+        const parsedDocumentsData = JSON.parse(documentsData);
+        const parsedEmploymentStatusData = JSON.parse(employmentStatusData);
+        const parsedBankDetailsData = JSON.parse(bankDetailsData);
+
+        // Validate customerData format
+        if (typeof parsedCustomerData !== 'object' || Array.isArray(parsedCustomerData)) {
+            throw new Error('Invalid customerData format');
+        }
+
+        // Create Customer
+        const customer = new Customer(parsedCustomerData);
+        // const avatarPath = req.file.path;
+        const avatarPath = req.files['photo'][0].path;
+        // console.log("AdharCard: ",req.files['AadharCard'][0].path)
+        customer.avatar = avatarPath;
+        await customer.validate();
+        await customer.save({ session });
+        console.log('Customer saved:', customer);
+
+        // Create Customer Nominees
+        if (parsedNomineeData && parsedNomineeData.length > 0) {
+            const savedNominees = await Promise.all(parsedNomineeData.map(async nominee => {
+                const newNominee = new CustomerNominee({
+                    ...nominee,
+                    customerId: customer._id
+                });
+                await newNominee.validate();
+                await newNominee.save({ session });
+                return newNominee._id;
+            }));
+            customer.nominee = savedNominees;
+            console.log('Customer nominees saved:', savedNominees);
+        }
+
+        // Create Customer Witnesses
+        if (parsedWitnessData && parsedWitnessData.length > 0) {
+            const savedWitnesses = await Promise.all(parsedWitnessData.map(async witness => {
+                const newWitness = new CustomerWitness({
+                    ...witness,
+                    customerId: customer._id
+                });
+                await newWitness.validate();
+                await newWitness.save({ session });
+                return newWitness._id;
+            }));
+            customer.witness = savedWitnesses;
+            console.log('Customer witnesses saved:', savedWitnesses);
+        }
+
+        // Create Customer Documents
+        const customerDocuments = new CustomerDocuments({
+            ...parsedDocumentsData,
+            customer: customer._id
+        });
+        customerDocuments.AadharCard.file=req.files['AadharCard'][0].path;
+        customerDocuments.PANCard.file=req.files['PANCard'][0].path;
+        customerDocuments.VoterID.file=req.files['VoterID'][0].path;
+        customerDocuments.DrivingLicense.file=req.files['DrivingLicense'][0].path;
+        customerDocuments.Passport.file=req.files['Passport'][0].path;
+        customerDocuments.ITRNo.file=req.files['ITRNo'][0].path;
+        await customerDocuments.validate();
+        await customerDocuments.save({ session });
+        console.log('Customer documents saved:', customerDocuments);
+
+        // Create Employment Status
+        customer.employmentStatus = parsedEmploymentStatusData;
+        await customer.save({ session });
+        console.log('Customer employment status saved:', parsedEmploymentStatusData);
+
+        // Create Bank Details
+        const bankDetails = new BankDetails({
+            ...parsedBankDetailsData,
+            customerId: customer._id
+        });
+        await bankDetails.validate();
+        await bankDetails.save({ session });
+        console.log('Bank details saved:', bankDetails);
+
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(201).json(new ApiResponse(201, 'Customer registered successfully'));
+
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Error registering customer:', error);
+        throw new ApiError(500, 'An error occurred during registration');
+    }
+});
+
+
+//its work without file
+export const registerCustomer1 = asyncHandler(async (req, res) => {
+    console.log('Request Body:', req.body);
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const {
+            customerData,
+            nomineeData,
+            witnessData,
+            documentsData,
+            employmentStatusData,
+            bankDetailsData
+        } = req.body;
+        if (typeof customerData !== 'object' || Array.isArray(customerData)) {
+            throw new Error('Invalid customerData format');
+        }
         // Create Customer
         const customer = new Customer(customerData);
         await customer.validate();
@@ -95,6 +211,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
     }
 });
 
+
 export const updateAvatar = asyncHandler(async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -123,6 +240,7 @@ export const updateAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(500, 'An error occurred while updating the avatar');
     }
 });
+
 
 const getCustomers = asyncHandler(async (req, res) => {
     const customers = await Customer.find()
