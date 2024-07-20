@@ -11,7 +11,7 @@ import { BankDetails } from "../models/bankDetails.model.js";
 
 // its work with image and allfile
 export const registerCustomer = asyncHandler(async (req, res) => {
-    console.log('Request Body:', req.body);
+    // console.log('Request Body:', req.body);
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -46,7 +46,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
         customer.avatar = avatarPath;
         await customer.validate();
         await customer.save({ session });
-        console.log('Customer saved:', customer);
+        // console.log('Customer saved:', customer);
 
         // Create Customer Nominees
         if (parsedNomineeData && parsedNomineeData.length > 0) {
@@ -60,7 +60,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
                 return newNominee._id;
             }));
             customer.nominee = savedNominees;
-            console.log('Customer nominees saved:', savedNominees);
+            // console.log('Customer nominees saved:', savedNominees);
         }
 
         // Create Customer Witnesses
@@ -75,7 +75,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
                 return newWitness._id;
             }));
             customer.witness = savedWitnesses;
-            console.log('Customer witnesses saved:', savedWitnesses);
+            // console.log('Customer witnesses saved:', savedWitnesses);
         }
 
         // Create Customer Documents
@@ -91,12 +91,14 @@ export const registerCustomer = asyncHandler(async (req, res) => {
         customerDocuments.ITRNo.file=req.files['ITRNo'][0].path;
         await customerDocuments.validate();
         await customerDocuments.save({ session });
-        console.log('Customer documents saved:', customerDocuments);
+        // console.log('Customer documents saved:', customerDocuments);
 
         // Create Employment Status
         customer.employmentStatus = parsedEmploymentStatusData;
+        // console.log("SalarySpil Routes",req.files['salarySlip'][0].path)
+        customer.employmentStatus.salarySlip =req.files['salarySlip'][0].path;
         await customer.save({ session });
-        console.log('Customer employment status saved:', parsedEmploymentStatusData);
+        // console.log('Customer employment status saved:', parsedEmploymentStatusData);
 
         // Create Bank Details
         const bankDetails = new BankDetails({
@@ -105,7 +107,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
         });
         await bankDetails.validate();
         await bankDetails.save({ session });
-        console.log('Bank details saved:', bankDetails);
+        // console.log('Bank details saved:', bankDetails);
 
         await session.commitTransaction();
         session.endSession();

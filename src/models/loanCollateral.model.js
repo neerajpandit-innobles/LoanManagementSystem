@@ -8,10 +8,10 @@ const CollateralDetailsSchema = new Schema({
     ref: 'CustomerLoan',
     required: true
   },
-  collateral: {
+  collateral: [{
     text: { type: String },
-    file: { type: String}
-  },
+    file: { type: String }
+  }],
 
 
 }, { timestamps: true });

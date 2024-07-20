@@ -24,6 +24,9 @@ export const EmploymentStatusSchema = new Schema({
     type: Date,
     // required: true
   },
+  salarySlip:{
+    type: String,
+  },
   currentOrLastAnnualSalary: {
     type: Number,
     // required: true

@@ -7,12 +7,18 @@ import { EMIDetail } from "../models/emiDetails.model.js";
 import { CollateralDetails } from "../models/loanCollateral.model.js";
 import mongoose from "mongoose";
 
-
 //calculateEMI
 export const calculateEMI = asyncHandler(async (req, res) => {
-    const { loanType, loanAmount, interest, tenure, firstEMIDate, latePaymentPenalty, collateral } = req.body;
-// console.log(req.body)
-    // Generate a unique loan ID (similar to the pre-validate hook in the CustomerLoan schema)
+    const loanDetails = JSON.parse(req.body.loanDetails);
+    const {
+        loanType,
+        loanAmount,
+        interest,
+        tenure,
+        firstEMIDate,
+        latePaymentPenalty,
+        collateral,
+    } = loanDetails;
     let isUnique = false;
     let loanID;
     while (!isUnique) {
@@ -25,16 +31,11 @@ export const calculateEMI = asyncHandler(async (req, res) => {
     }
 
     // Calculate interest by monthly
-    const intrest =(loanAmount * interest * tenure) / 1200;
-    console.log("Intrest: ",parseFloat(intrest))
-    console.log("loan Amount: ",loanAmount)
+    const intrest = (loanAmount * interest * tenure) / 1200;
 
-    const loanAmountAfterInterest = (parseFloat(loanAmount) + parseFloat(intrest));
-    console.log("Amount +Intrest:",loanAmountAfterInterest)
-    // Calculate monthly EMI
-    let monthlyEMI = (loanAmountAfterInterest / tenure); 
-    // console.log(monthlyEMI)
-    // Calculate loan issue date (assuming current date)
+    const loanAmountAfterInterest =
+        parseFloat(loanAmount) + parseFloat(intrest);
+    let monthlyEMI = loanAmountAfterInterest / tenure;
     const loanIssueDate = new Date();
 
     // Create EMI details
@@ -47,30 +48,31 @@ export const calculateEMI = asyncHandler(async (req, res) => {
             status: "Upcoming",
             submissionDate: null,
             penalty: "No",
-            totalAmount: monthlyEMI
+            totalAmount: monthlyEMI,
         };
         emiDetails.push(emiDetail);
 
         // Move to next month
         emiDate.setMonth(emiDate.getMonth() + 1);
     }
-//  console.log(loanAmountAfterInterest)
-    res.status(200).json(new ApiResponse(200, {
-        loanID,
-        loanType,
-        loanIssueDate,
-        loanAmount,
-        interest,
-        firstEMIDate,
-        loanAmountAfterInterest,
-        tenure,
-        monthlyEMI,
-        latePaymentPenalty,
-        emiDetails,
-        collateral
-    }));
+    //  console.log(loanAmountAfterInterest)
+    res.status(200).json(
+        new ApiResponse(200, {
+            loanID,
+            loanType,
+            loanIssueDate,
+            loanAmount,
+            interest,
+            firstEMIDate,
+            loanAmountAfterInterest,
+            tenure,
+            monthlyEMI,
+            latePaymentPenalty,
+            emiDetails,
+            collateral,
+        })
+    );
 });
-
 
 //loan Issue
 export const issueLoan = asyncHandler(async (req, res) => {
@@ -82,26 +84,34 @@ export const issueLoan = asyncHandler(async (req, res) => {
     let collateralDetails;
 
     try {
-        const { loanType, loanAmount, interest, tenure, firstEMIDate, loanIssueDate, latePaymentPenalty, collateral } = req.body;
+        const loanDetails = JSON.parse(req.body.loanDetails);
 
-        // Validate customer ID
-
+        const {
+            loanType,
+            loanAmount,
+            interest,
+            tenure,
+            firstEMIDate,
+            loanIssueDate,
+            latePaymentPenalty,
+            collateral,
+        } = loanDetails; //req.body;
 
         const customer = await Customer.findOne({
-            $or:[{customerID: customerIDOrcustomerId},{customerId:customerIDOrcustomerId}]
+            $or: [
+                { customerID: customerIDOrcustomerId },
+                { customerId: customerIDOrcustomerId },
+            ],
         });
         if (!customer) {
             throw new ApiError(404, "Customer not found");
         }
-    // Calculate interest by monthly
-    const intrest =(loanAmount * interest * tenure) / 1200;
-    console.log("Intrest: ",parseFloat(intrest))
-    console.log("loan Amount: ",loanAmount)
+        // Calculate interest by monthly
+        const intrest = (loanAmount * interest * tenure) / 1200;
 
-    const loanAmountAfterInterest = (parseFloat(loanAmount) + parseFloat(intrest));
-    console.log("Amount +Intrest:",loanAmountAfterInterest)
-    // Calculate monthly EMI
-    let monthlyEMI = (loanAmountAfterInterest / tenure); 
+        const loanAmountAfterInterest =
+            parseFloat(loanAmount) + parseFloat(intrest);
+        let monthlyEMI = loanAmountAfterInterest / tenure;
         // Create loan
         const loan = new CustomerLoan({
             loanType,
@@ -113,10 +123,10 @@ export const issueLoan = asyncHandler(async (req, res) => {
             loanIssueDate,
             firstEMIDate,
             latePaymentPenalty,
-            customerId:customer._id,
-            customerID: customer.customerID
+            customerId: customer._id,
+            customerID: customer.customerID,
         });
-        
+
         await loan.validate();
         await loan.save({ session });
 
@@ -135,7 +145,7 @@ export const issueLoan = asyncHandler(async (req, res) => {
                 status: "Upcoming",
                 submissionDate: null,
                 penalty: "No",
-                totalAmount: monthlyEMI
+                totalAmount: monthlyEMI,
             };
             emiDetails.push(emiDetail);
 
@@ -146,28 +156,60 @@ export const issueLoan = asyncHandler(async (req, res) => {
         await EMIDetail.insertMany(emiDetails, { session });
 
         // Save collateral details if provided
-        if (collateral) {
-            collateralDetails = new CollateralDetails({
-                loanId: loan._id,
-                collateral
+
+        // console.log('Files:', req.files);
+        // console.log('Collateral:', collateral);
+        // if (collateral) {
+        //     collateralDetails = new CollateralDetails({
+        //         loanId: loan._id,
+        //         collateral
+        //     });
+        //     await collateralDetails.save({ session });
+        // }
+        // Assuming req.files is an array of file objects
+        const files = req.files;
+
+        console.log("Files:", files);
+        console.log("Collateral:", collateral);
+
+        if (collateral && Array.isArray(collateral)) {
+            const formattedCollateral = collateral.map((item) => {
+                // Find the file object that matches the file name in the collateral item
+                const file = files.find((f) => f.originalname === item.file);
+                return {
+                    text: item.text,
+                    file: file ? file.path : "", // Save the file path or an empty string if no file found
+                };
             });
+            console.log("coll-", formattedCollateral);
+            // Create a new CollateralDetails instance
+            const collateralDetails = new CollateralDetails({
+                loanId: loan._id,
+                collateral: formattedCollateral,
+            });
+
+            // Save the collateral details to the database
             await collateralDetails.save({ session });
+            console.log("Collateral details saved successfully");
         }
 
         await session.commitTransaction();
 
-        res.status(201).json(new ApiResponse(201, collateralDetails, 'Loan issued and EMI details saved successfully'));
+        res.status(201).json(
+            new ApiResponse(
+                201,
+                collateralDetails,
+                "Loan issued and EMI details saved successfully"
+            )
+        );
     } catch (error) {
         await session.abortTransaction();
-        console.error('Error issuing loan:', error);
-        throw new ApiError(500, 'An error occurred during loan issuance');
+        console.error("Error issuing loan:", error);
+        throw new ApiError(500, "An error occurred during loan issuance");
     } finally {
         session.endSession();
     }
 });
-
-
-
 
 export const getLoanDetails = asyncHandler(async (req, res) => {
     const { loanId } = req.params;
@@ -185,8 +227,8 @@ export const getLoanDetails = asyncHandler(async (req, res) => {
                 from: "emidetails", // Ensure this matches your collection name in the database
                 localField: "_id",
                 foreignField: "loanId",
-                as: "emiDetails"
-            }
+                as: "emiDetails",
+            },
         },
         {
             $project: {
@@ -204,9 +246,9 @@ export const getLoanDetails = asyncHandler(async (req, res) => {
                 customerID: 1,
                 emiDetails: 1,
                 createdAt: 1,
-                updatedAt: 1
-            }
-        }
+                updatedAt: 1,
+            },
+        },
     ]);
 
     if (!loanDetails.length) {
@@ -214,10 +256,14 @@ export const getLoanDetails = asyncHandler(async (req, res) => {
     }
 
     // Respond with loan details
-    res.status(200).json(new ApiResponse(200, 'Loan details retrieved successfully', loanDetails[0]));
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            "Loan details retrieved successfully",
+            loanDetails[0]
+        )
+    );
 });
-
-
 
 // Update Loan Status
 export const updateLoanStatus = asyncHandler(async (req, res) => {
@@ -225,8 +271,11 @@ export const updateLoanStatus = asyncHandler(async (req, res) => {
     const { isActive } = req.body; // Assuming you pass the status in the request body
 
     // Validate request body fields
-    if (typeof isActive !== 'boolean') {
-        throw new ApiError(400, "isActive field is required and should be a boolean");
+    if (typeof isActive !== "boolean") {
+        throw new ApiError(
+            400,
+            "isActive field is required and should be a boolean"
+        );
     }
 
     // Find the loan by loanID
@@ -240,14 +289,14 @@ export const updateLoanStatus = asyncHandler(async (req, res) => {
     await loan.save();
 
     // Respond with success message and updated document
-    res.status(200).json(new ApiResponse(200, "Loan status updated successfully", loan));
+    res.status(200).json(
+        new ApiResponse(200, "Loan status updated successfully", loan)
+    );
 });
-
-
 
 // Controller function to update EMI status
 export const updateEMIStatus = async (req, res) => {
-    const id=req.params.id
+    const id = req.params.id;
     try {
         const { status, submissionDate } = req.body;
 
@@ -255,9 +304,9 @@ export const updateEMIStatus = async (req, res) => {
         const emiDetail = await EMIDetail.findById(id);
 
         if (!emiDetail) {
-            return res.status(404).json({ message: 'EMI detail not found' });
+            return res.status(404).json({ message: "EMI detail not found" });
         }
-        emiDetail.status = 'Paid';
+        emiDetail.status = "Paid";
         emiDetail.submissionDate = submissionDate || new Date();
 
         // Update the status and submission date if the status is 'Paid'
@@ -271,13 +320,14 @@ export const updateEMIStatus = async (req, res) => {
         // Save the updated EMI detail
         await emiDetail.save();
 
-        res.status(200).json({ message: 'EMI status updated successfully', emiDetail });
+        res.status(200).json({
+            message: "EMI status updated successfully",
+            emiDetail,
+        });
     } catch (error) {
-        res.status(500).json({ message: 'An error occurred while updating the EMI status', error });
+        res.status(500).json({
+            message: "An error occurred while updating the EMI status",
+            error,
+        });
     }
 };
-
-
-
-
-
