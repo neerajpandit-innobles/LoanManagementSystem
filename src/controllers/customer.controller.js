@@ -41,7 +41,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
         // Create Customer
         const customer = new Customer(parsedCustomerData);
         // const avatarPath = req.file.path;
-        const avatarPath = req.files['photo'][0].path;
+        const avatarPath = req.files['photo'][0].filename;
         // console.log("AdharCard: ",req.files['AadharCard'][0].path)
         customer.avatar = avatarPath;
         await customer.validate();
@@ -95,7 +95,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
 
         // Create Employment Status
         customer.employmentStatus = parsedEmploymentStatusData;
-        // console.log("SalarySpil Routes",req.files['salarySlip'][0].path)
+        console.log("SalarySpil Routes",req.files['salarySlip'])
         customer.employmentStatus.salarySlip =req.files['salarySlip'][0].path;
         await customer.save({ session });
         // console.log('Customer employment status saved:', parsedEmploymentStatusData);
@@ -111,7 +111,7 @@ export const registerCustomer = asyncHandler(async (req, res) => {
 
         await session.commitTransaction();
         session.endSession();
-
+console.log("Customer done");
         res.status(201).json(new ApiResponse(201, 'Customer registered successfully'));
 
     } catch (error) {
