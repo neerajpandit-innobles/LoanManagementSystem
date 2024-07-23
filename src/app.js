@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import cron from 'node-cron';
 
 const app = express();
 
@@ -28,10 +29,16 @@ app.use(
   }),
 );
 
+cron.schedule('* */12 * * *', () => {
+  console.log('Running cron job to update every 12 hours EMI status and add penalty...');
+ updateEMIOverdueStatus();
+});
+
 
 import userRouter from "./routes/user.routes.js";
 import customerRouter from "./routes/customer.routes.js";
 import loanRouter from "./routes/loan.routes.js"
+import { updateEMIOverdueStatus } from "./controllers/customerLoan.controller.js";
 // import { logRequestResponse, morganMiddleware } from "./middlewares/logger.middleware.js";
 
 app.use("/api/v1/users", userRouter);

@@ -35,7 +35,7 @@ export const calculateEMI = asyncHandler(async (req, res) => {
 
     const loanAmountAfterInterest =
         parseFloat(loanAmount) + parseFloat(intrest);
-    let monthlyEMI = loanAmountAfterInterest / tenure;
+    let monthlyEMI = (loanAmountAfterInterest / tenure).toFixed(2);
     const loanIssueDate = new Date();
 
     // Create EMI details
@@ -111,7 +111,7 @@ export const issueLoan = asyncHandler(async (req, res) => {
 
         const loanAmountAfterInterest =
             parseFloat(loanAmount) + parseFloat(intrest);
-        let monthlyEMI = loanAmountAfterInterest / tenure;
+        let monthlyEMI = (loanAmountAfterInterest / tenure).toFixed(2);
         // Create loan
         const loan = new CustomerLoan({
             loanType,
@@ -169,8 +169,8 @@ export const issueLoan = asyncHandler(async (req, res) => {
         // Assuming req.files is an array of file objects
         const files = req.files;
 
-        console.log("Files:", files);
-        console.log("Collateral:", collateral);
+        // console.log("Files:", files);
+        // console.log("Collateral:", collateral);
 
         if (collateral && Array.isArray(collateral)) {
             const formattedCollateral = collateral.map((item) => {
@@ -254,6 +254,7 @@ export const getLoanDetails = asyncHandler(async (req, res) => {
     if (!loanDetails.length) {
         throw new ApiError(404, "Loan not found");
     }
+    console.log(loanDetails);
 
     // Respond with loan details
     res.status(200).json(
@@ -297,16 +298,20 @@ export const updateLoanStatus = asyncHandler(async (req, res) => {
 // Controller function to update EMI status
 export const updateEMIStatus = async (req, res) => {
     const id = req.params.id;
+    console.log(id);
     try {
         const { status, submissionDate } = req.body;
 
         // Find the EMI detail by ID
         const emiDetail = await EMIDetail.findById(id);
-
+        console.log(emiDetail);
         if (!emiDetail) {
             return res.status(404).json({ message: "EMI detail not found" });
         }
+        console.log("Before", emiDetail.status);
         emiDetail.status = "Paid";
+        // (emiDetail.status = status),
+        console.log("After", emiDetail.status);
         emiDetail.submissionDate = submissionDate || new Date();
 
         // Update the status and submission date if the status is 'Paid'
@@ -319,7 +324,7 @@ export const updateEMIStatus = async (req, res) => {
 
         // Save the updated EMI detail
         await emiDetail.save();
-
+        console.log("After", emiDetail.status);
         res.status(200).json({
             message: "EMI status updated successfully",
             emiDetail,
@@ -329,5 +334,33 @@ export const updateEMIStatus = async (req, res) => {
             message: "An error occurred while updating the EMI status",
             error,
         });
+    }
+};
+
+export const updateEMIOverdueStatus = async () => {
+    try {
+        // Get the current date
+        const currentDate = new Date();
+
+        // Update documents where the emiDate is past and status is not already 'Overdue'
+        const result = await EMIDetail.updateMany(
+            {
+                emiDate: { $lt: currentDate }, // Compare emiDate with the current date
+                status: { $ne: "Overdue" },
+            },
+            {
+                $set: {
+                    status: "Overdue",
+                    penalty: "Yes", 
+                    // You can also update penalty amount here if needed, e.g., penaltyAmount: <value>
+                },
+            }
+        );
+
+        console.log(
+            `Updated ${result.nModified} EMIDetails to Overdue with penalty`
+        );
+    } catch (error) {
+        console.error("Error updating EMI status and penalty:", error);
     }
 };

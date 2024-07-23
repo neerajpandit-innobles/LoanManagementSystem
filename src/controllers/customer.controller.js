@@ -83,20 +83,20 @@ export const registerCustomer = asyncHandler(async (req, res) => {
             ...parsedDocumentsData,
             customer: customer._id
         });
-        customerDocuments.AadharCard.file=req.files['AadharCard'][0].path;
-        customerDocuments.PANCard.file=req.files['PANCard'][0].path;
-        customerDocuments.VoterID.file=req.files['VoterID'][0].path;
-        customerDocuments.DrivingLicense.file=req.files['DrivingLicense'][0].path;
-        customerDocuments.Passport.file=req.files['Passport'][0].path;
-        customerDocuments.ITRNo.file=req.files['ITRNo'][0].path;
+        customerDocuments.AadharCard.file=req.files['AadharCard'][0].filename;
+        customerDocuments.PANCard.file=req.files['PANCard'][0].filename;
+        customerDocuments.VoterID.file=req.files['VoterID'][0].filename;
+        customerDocuments.DrivingLicense.file=req.files['DrivingLicense'][0].filename;
+        customerDocuments.Passport.file=req.files['Passport'][0].filename;
+        customerDocuments.ITRNo.file=req.files['ITRNo'][0].filename;
         await customerDocuments.validate();
         await customerDocuments.save({ session });
         // console.log('Customer documents saved:', customerDocuments);
 
         // Create Employment Status
         customer.employmentStatus = parsedEmploymentStatusData;
-        console.log("SalarySpil Routes",req.files['salarySlip'])
-        customer.employmentStatus.salarySlip =req.files['salarySlip'][0].path;
+        // console.log("SalarySpil Routes",req.files['salarySlip'])
+        customer.employmentStatus.salarySlip =req.files['salarySlip'][0].filename;
         await customer.save({ session });
         // console.log('Customer employment status saved:', parsedEmploymentStatusData);
 

@@ -25,7 +25,8 @@ const emiDetailSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["Paid", "Upcoming"],
+            enum: ["Paid", "Upcoming","Overdue"],
+            default: "Upcoming",
             required: [true, "Status is required"],
         },
         submissionDate: {
