@@ -35,7 +35,7 @@ app.use(
 
 app.get('', (req, res) => {
     res.status(200).json({
-      message: 'Welcome to Pandey Ji in the Node.js server!'
+      message: 'Welcome to the Node.js server!'
     });
   });
 
