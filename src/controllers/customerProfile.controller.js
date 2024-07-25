@@ -177,8 +177,8 @@ export const getAllCustomersWithLoanDetails = asyncHandler(async (req, res) => {
         }
       
     });
-
-    res.status(200).json(apiResponse);
+    res.status(200).json(new ApiResponse(200, 'Customer details retrieved successfully', apiResponse));
+    // res.status(200).json(apiResponse);
   } catch (error) {
     console.error('Error retrieving customers with loan details:', error.message);
     res.status(500).json({ message: 'Internal server error' });
