@@ -37,7 +37,7 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
 app.use(xss());
 app.use(express.urlencoded({ extended: true, limit: "96kb" }));
-app.use("/public", express.static(path.join(__dirname, "../public/temp")));
+app.use("/public", express.static(path.join(__dirname, "../public")));
 // console.log(`Serving static files from: ${path.join(__dirname, "../public/temp")}`);
 
 // console.log(__dirname,"../public");

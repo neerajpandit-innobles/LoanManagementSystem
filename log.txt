@@ -596,3 +596,5 @@
 3/8/2024, 3:21:00 pm:::1 POST: /api/v1/loan/issueLoan/LMS321511 {} 
 
 3/8/2024, 3:21:02 pm:::1 GET: /api/v1/customer/customerProfiles {} 
+
+3/8/2024, 3:23:52 pm:::1 GET: /api/v1/customer/66adfd525b3d7f8146986d41 {} 
