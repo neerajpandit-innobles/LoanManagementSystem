@@ -21,7 +21,7 @@ const addressSchema = new Schema(
             type: String,
             required: [true, "State is required"],
             trim: true,
-            minlength: [2, "State must be at least 2 characters long"],
+            minlength: [1, "State must be at least 2 characters long"],
             maxlength: [50, "State must be less than 50 characters long"],
         },
         district: {

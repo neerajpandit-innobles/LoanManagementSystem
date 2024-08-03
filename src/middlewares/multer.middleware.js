@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     cb(null, './public/temp'); // Specify the destination directory
   },
   filename: function (req, file, cb) {
-    const username = req.body.username || 'unknown_user'; // Ensure username is available in the request body
+    const username = req.body.username || 'user'; // Ensure username is available in the request body
     const timestamp = Date.now();
     const originalname = file.originalname;
     cb(null, `${username}_${timestamp}_${originalname}`); // Customize the filename
@@ -40,7 +40,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 const limits = {
-  fileSize: 2 * 1024 * 1024, // 2MB
+  fileSize: 5 * 1024 * 1024, // 2MB
   files: 10 // Maximum number of files
 };
 

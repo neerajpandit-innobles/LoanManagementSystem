@@ -2,12 +2,15 @@ import { Router } from "express";
 
 const router=Router();
 
-import {  createCustomerWitness, createCustomerNominee, getCustomers, registerCustomer, updateAvatar } from "../controllers/customer.controller.js";
+import {  createCustomerWitness, createCustomerNominee, getCustomers,registerCustomer, registerCustomer1, updateAvatar } from "../controllers/customer.controller.js";
 import { createEmploymentStatus } from "../controllers/employMentStatus.controller.js";
 import { createBankDetails } from "../controllers/bankDetails.controller.js";
 import { getAllCustomersWithLoanDetails, getCustomerDetails } from "../controllers/customerProfile.controller.js";
 import { createCustomerDocuments } from "../controllers/customerDocument.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
+// import {  validateBody, validateCustomerData, } from "../middlewares/validation.middleware.js";
+
+
 
 router.route('/register').post(upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'AadharCard',maxCount:1 },{ name: 'PANCard',maxCount:1 },{ name: 'VoterID',maxCount:1 },{ name: 'DrivingLicense',maxCount:1 },{ name: 'Passport',maxCount:1 },{ name: 'ITRNo',maxCount:1 },{ name: 'salarySlip',maxCount:1 }]), registerCustomer);
 

@@ -26,13 +26,13 @@ export const registerCustomer = asyncHandler(async (req, res) => {
         } = req.body;
 
         // Parse JSON strings to objects
-        const parsedCustomerData = JSON.parse(customerData);
+        const parsedCustomerData =JSON.parse(customerData);
         const parsedNomineeData = JSON.parse(nomineeData);
         const parsedWitnessData = JSON.parse(witnessData);
         const parsedDocumentsData = JSON.parse(documentsData);
         const parsedEmploymentStatusData = JSON.parse(employmentStatusData);
         const parsedBankDetailsData = JSON.parse(bankDetailsData);
-
+        // console.log(parsedCustomerData.fullName);
         // Validate customerData format
         if (typeof parsedCustomerData !== 'object' || Array.isArray(parsedCustomerData)) {
             throw new Error('Invalid customerData format');
@@ -111,14 +111,14 @@ export const registerCustomer = asyncHandler(async (req, res) => {
 
         await session.commitTransaction();
         session.endSession();
-console.log("Customer done");
+        console.log("Customer done");
         res.status(201).json(new ApiResponse(201, 'Customer registered successfully'));
 
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
         console.error('Error registering customer:', error);
-        throw new ApiError(500, 'An error occurred during registration');
+        throw new ApiError(500, 'An error occurred during registration enter Valid Data');
     }
 });
 

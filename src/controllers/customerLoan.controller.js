@@ -157,16 +157,7 @@ export const issueLoan = asyncHandler(async (req, res) => {
 
         // Save collateral details if provided
 
-        // console.log('Files:', req.files);
-        // console.log('Collateral:', collateral);
-        // if (collateral) {
-        //     collateralDetails = new CollateralDetails({
-        //         loanId: loan._id,
-        //         collateral
-        //     });
-        //     await collateralDetails.save({ session });
-        // }
-        // Assuming req.files is an array of file objects
+     
         const files = req.files;
 
         // console.log("Files:", files);
@@ -181,7 +172,7 @@ export const issueLoan = asyncHandler(async (req, res) => {
                     file: file ? file.path : "", // Save the file path or an empty string if no file found
                 };
             });
-            console.log("coll-", formattedCollateral);
+            // console.log("coll-", formattedCollateral);
             // Create a new CollateralDetails instance
             const collateralDetails = new CollateralDetails({
                 loanId: loan._id,
@@ -254,7 +245,7 @@ export const getLoanDetails = asyncHandler(async (req, res) => {
     if (!loanDetails.length) {
         throw new ApiError(404, "Loan not found");
     }
-    console.log(loanDetails);
+    // console.log(loanDetails);
 
     // Respond with loan details
     res.status(200).json(
@@ -298,20 +289,20 @@ export const updateLoanStatus = asyncHandler(async (req, res) => {
 // Controller function to update EMI status
 export const updateEMIStatus = async (req, res) => {
     const id = req.params.id;
-    console.log(id);
+    // console.log(id);
     try {
         const { status, submissionDate } = req.body;
 
         // Find the EMI detail by ID
         const emiDetail = await EMIDetail.findById(id);
-        console.log(emiDetail);
+        // console.log(emiDetail);
         if (!emiDetail) {
             return res.status(404).json({ message: "EMI detail not found" });
         }
-        console.log("Before", emiDetail.status);
+        // console.log("Before", emiDetail.status);
         emiDetail.status = "Paid";
         // (emiDetail.status = status),
-        console.log("After", emiDetail.status);
+        // console.log("After", emiDetail.status);
         emiDetail.submissionDate = submissionDate || new Date();
 
         // Update the status and submission date if the status is 'Paid'
@@ -324,7 +315,7 @@ export const updateEMIStatus = async (req, res) => {
 
         // Save the updated EMI detail
         await emiDetail.save();
-        console.log("After", emiDetail.status);
+        // console.log("After", emiDetail.status);
         res.status(200).json({
             message: "EMI status updated successfully",
             emiDetail,
